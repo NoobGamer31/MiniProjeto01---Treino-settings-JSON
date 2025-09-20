@@ -25,21 +25,83 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
             //PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true
         };
+        /*
+         
+         Nota aprendizado:
+        Ao usar o camelCase como padrão de nome, tanto o serializador tanto o desserializador, colocam como camelCase dentro do JSON.
+        Ao tentar procurar (na desserialização), ele procura por camelCase. No projeto está PascalCase, exception no JSON.
+
+        Para resolver: Tirar camelCase; Colocar [JsonPropertyName] nas propriedades das Settings;
+        Fazer o ficheiro seguir as regras de camelCase; CaseInsetive (PropertyNameCaseInsensitive = true)
+
+        */
 
         // Caminho base das settings da app
         static string path = Path.Combine(Directory.GetCurrentDirectory(), "app_settings.json");
         static async Task Main(string[] args)
         {
-            // Ver settings antes de iniciar
+            // Ver settings antes de iniciar para carregá-las ou default
             VerSettings();
 
             Console.WriteLine($"Bem-vindo!\r\n" +
                 $"{settings.Numero1} {Calcular(settings.Numero1, settings.Numero2, settings.Operacao).op} {settings.Numero2} = {Calcular(settings.Numero1, settings.Numero2, settings.Operacao).resul}");
 
+            while (true)
+            {
+                Console.WriteLine($"Escolha a sua opção:\r\n[0] - Fechar calculadora\r\n[1] - Calculadora padrão\r\n[2] - Métodos");
+                switch (Console.ReadLine())
+                {
+                    case "0":
+                        Environment.Exit(0);
+                        break;
+                    case "1":
+                        double num1 = 0, num2 = 0;
+                        int operador = -1;
+                        Console.Write("Intrduza o número à esquerda: "); 
+                        double.TryParse(Console.ReadLine(), out num1);
+                        
+                        Console.Write("Intrduza o operador: ");
+                        string op = Console.ReadLine();
+                        if (op == "+") operador = 0;
+                        else if (op == "-") operador = 1;
+                        else if (op == "*") operador = 2;
+                        else if (op == "/") operador = 3;
 
-            Console.ReadKey();
+                        Console.Write("Intrduza o número à direita: ");
+                        double.TryParse(Console.ReadLine(), out num2);
+
+                        if (operador == -1)
+                        {
+                            Console.WriteLine("Ops! Você não colocou um operador váido. Vale relembrar quais são: + - * /\r\nAperte qualquer tecla para voltar a tentar");
+                            Console.ReadKey();
+                            Console.Clear();
+                            continue; // return; fecha o método Main e não continua para a próxima iteração
+                        }
+
+                        (double resultado, string operadorSimbolo) = Calcular(num1, num2, operador);
+
+                        Console.Write($"{num1} {operadorSimbolo} {num2} = {resultado}\r\n Aperte qualquer tecla para continuar");
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
+                    default:
+                        Console.WriteLine("Nenhuma opção válida foi selecionada. Aperte qualquer tecla para voltar a tentar.");
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
+                }
+            }
         }
 
+
+
+
+
+        /*
+            ============================================ 
+                            MÉTODOS
+            ============================================             
+        */
         static (double resul, string op) Calcular(double numero1, double numero2, int operador)
         {
             if (operador == 0)
@@ -89,7 +151,6 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
                     using FileStream reader = File.OpenRead(path);
                     settings = CarregarSettings(reader);
                 }
-                // Por testar resultado que sai do await assim que criar settings 
             }
             catch (IOException) { settings = new Settings(); }
             catch (JsonException) { settings = new Settings(); }
