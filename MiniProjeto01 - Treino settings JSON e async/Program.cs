@@ -43,9 +43,11 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
             // Ver settings antes de iniciar para carregá-las ou default
             VerSettings();
 
+            // Introdução da app
             Console.WriteLine($"Bem-vindo!\r\n" +
                 $"{settings.Numero1} {Calcular(settings.Numero1, settings.Numero2, settings.Operacao).op} {settings.Numero2} = {Calcular(settings.Numero1, settings.Numero2, settings.Operacao).resul}");
 
+            // Começo da calculadora
             while (true)
             {
                 Console.WriteLine($"Escolha a sua opção:\r\n[0] - Fechar calculadora\r\n[1] - Calculadora padrão\r\n[2] - Métodos");
@@ -55,8 +57,9 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
                         Environment.Exit(0);
                         break;
                     case "1":
+                        // Iniciar as variáveis
                         double num1 = 0, num2 = 0;
-                        int operador = -1;
+                        int operador = -1; // -1 = Inválido
                         Console.Write("Intrduza o número à esquerda: "); 
                         double.TryParse(Console.ReadLine(), out num1);
                         
@@ -75,9 +78,10 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
                             Console.WriteLine("Ops! Você não colocou um operador váido. Vale relembrar quais são: + - * /\r\nAperte qualquer tecla para voltar a tentar");
                             Console.ReadKey();
                             Console.Clear();
-                            continue; // return; fecha o método Main e não continua para a próxima iteração
+                            continue; // return; fecha o método Main e não continua para a próxima iteração por conta do while
                         }
 
+                        // Tupla para retirar sinal e resultado do cálculo
                         (double resultado, string operadorSimbolo) = Calcular(num1, num2, operador);
 
                         Console.Write($"{num1} {operadorSimbolo} {num2} = {resultado}\r\n Aperte qualquer tecla para continuar");
@@ -124,6 +128,7 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
                 return (numero1 / numero2, "/");
             }
 
+            // Se acontecer algo erro totalmente inesperado e o operador chegar aqui com -1 ou diferente do intervalo de 0-3
             if (operador > 3 || operador < 0)
             {
                 if (File.Exists(path)) DeletarJSON();
@@ -138,12 +143,13 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
         {
             try
             {
+                // path = Debug/app_settings.json. Se existir, tenta carregar
                 if (File.Exists(path))
                 {
                     using FileStream reader = File.OpenRead(path);
                     settings = CarregarSettings(reader);
                 }
-                else
+                else // Cria um novo ficheiro do zero
                 {
                     using FileStream writer = File.Create(path);
                     JsonSerializer.Serialize<Settings>(writer, settings);
@@ -153,7 +159,7 @@ namespace MiniProjeto01___Treino_settings_JSON_e_async
                 }
             }
             catch (IOException) { settings = new Settings(); }
-            catch (JsonException) { settings = new Settings(); }
+            catch (JsonException) { settings = new Settings(); } // Em caso de qualquer erro com IO ou Json, inicializa com um novo
             catch (Exception e) { ExceptionHandler(e);  }
         }
 
